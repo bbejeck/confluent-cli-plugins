@@ -22,7 +22,8 @@ def cli(cmd_args, print_output, fmt_json=True):
     return final_result
 
 
-parser = argparse.ArgumentParser(description='Purges API keys for the current user '
+parser = argparse.ArgumentParser(description='Deletes API keys for the current user, '
+                                             'specified environment, or service account '
                                              'This plugin assumes confluent CLI v3.0.0 or greater')
 
 parser.add_argument('--resource', help='The resource id to filter results by')
