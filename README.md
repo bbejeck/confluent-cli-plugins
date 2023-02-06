@@ -69,7 +69,7 @@ options:
   --debug {y,n}         Prints the results of every command, defaults to n
 ```
 
-### [confluent purge keys](purge-keys/confluent-purge-keys.py)
+### [confluent keys purge](purge-keys/confluent-keys-purge.py)
  - Purges all API keys 
    - User prompted to confirm
 #### Requirements
@@ -77,7 +77,7 @@ options:
   - [Confluent CLI v3.0.0](https://docs.confluent.io/confluent-cli/current/install.html)
 #### Usage
 ```text
-usage: confluent purge keys [-h] [--resource RESOURCE] [--env ENV] [--sa SA]
+usage: confluent keys purge [-h] [--resource RESOURCE] [--env ENV] [--sa SA]
 
 Deletes API keys for the current user, specified environment, or service account This plugin assumes confluent CLI v3.0.0 or greater
 
