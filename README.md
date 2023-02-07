@@ -36,7 +36,7 @@ confluent-this-command exists, the CLI runs this plugin and passes all arguments
 
 Here's a list of the current plugins you can install for the confluent CLI
 
-### [confluent create cluster](create-cluster/confluent-create-cluster.py)
+### [confluent dev bundle](dev-bundle/confluent-dev-bundle.py)
   - Creates a cluster with the preferred cloud provider and region
   - Generates API key and secret for cluster access 
   - Enables Schema Registry
@@ -51,7 +51,7 @@ Here's a list of the current plugins you can install for the confluent CLI
   - [Confluent CLI v3.0.0](https://docs.confluent.io/confluent-cli/current/install.html)
 #### Usage
 ```text
-usage: confluent-create-cluster.py [-h] --name NAME [--env ENV] [--cloud {aws,azure,gcp}] [--region REGION] [--geo {apac,eu,us}]
+usage: confluent dev bundle [-h] --name NAME [--env ENV] [--cloud {aws,azure,gcp}] [--region REGION] [--geo {apac,eu,us}]
                                    [--client {clojure,cpp,csharp,go,groovy,java,kotlin,ktor,nodejs,python,restapi,ruby,rust,scala,springboot}] [--debug {y,n}]
 
 Creates a Kafka cluster with API keys, Schema Registry with API keys and a client config template.This plugin assumes confluent CLI v3.0.0 or greater

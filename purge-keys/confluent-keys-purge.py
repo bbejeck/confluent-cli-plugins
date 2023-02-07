@@ -33,9 +33,12 @@ def cli(cmd_args, print_output, fmt_json=True):
     return final_result
 
 
+usage_message = "confluent keys purge [-h] [--resource RESOURCE] [--env ENV] [--sa SA]"
+
 parser = argparse.ArgumentParser(description='Deletes API keys for the current user, '
                                              'specified environment, or service account '
-                                             'This plugin assumes confluent CLI v3.0.0 or greater')
+                                             'This plugin assumes confluent CLI v3.0.0 or greater',
+                                 usage=usage_message)
 
 parser.add_argument('--resource', help='The resource id to filter results by')
 parser.add_argument('--env', help='The environment id to purge keys from')

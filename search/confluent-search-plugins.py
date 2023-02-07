@@ -37,7 +37,7 @@ def cli(cmd_args, print_output, fmt_json=True):
 parser = argparse.ArgumentParser(description='Lists the Confluent CLI Plugins available')
 
 parser.add_argument('--token', required=True, help='Your personal access token to use GitHub API')
-parser.add_argument('--path', required=True, help='Path to save file to disk')
+parser.add_argument('--path', default='/usr/local/bin', help='Path to save commands')
 
 args = parser.parse_args()
 
@@ -75,4 +75,4 @@ for plugin_index in plugins_to_download.split(','):
 
         with open(args.path + '/' + file_name, 'wb') as out_file:
             shutil.copyfileobj(file_response.raw, out_file)
-        print("Successfully wrote %s to %s" % (file_name, args.path))
+        print("Successfully installed %s to %s" % (file_name, args.path))

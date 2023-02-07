@@ -33,10 +33,15 @@ def cli(cmd_args, print_output, fmt_json=True):
     return final_result
 
 
+usage_message = '''confluent dev bundle [-h] --name NAME [--env ENV] [--cloud {aws,azure,gcp}] [--region REGION] [--geo {apac,eu,us}]
+[--client {clojure,cpp,csharp,go,groovy,java,kotlin,ktor,nodejs,python,restapi,ruby,rust,scala,springboot}] [--debug {y,n}]
+'''
+
 parser = argparse.ArgumentParser(description='Creates a Kafka cluster with API keys, '
                                              'Schema Registry with API keys and a client '
-                                             'config template.'
-                                             'This plugin assumes confluent CLI v3.0.0 or greater')
+                                             'config properties file.'
+                                             '\nThis plugin assumes confluent CLI v3.0.0 or greater',
+                                 usage=usage_message)
 
 parser.add_argument('--name', required=True, help='The name for your Confluent Kafka Cluster')
 parser.add_argument('--env', help='The environment name')
