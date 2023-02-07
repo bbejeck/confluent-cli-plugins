@@ -16,6 +16,8 @@ import subprocess
 import json
 import requests
 import shutil
+import os
+import stat
 
 
 def cli(cmd_args, print_output, fmt_json=True):
@@ -72,7 +74,9 @@ for plugin_index in plugins_to_download.split(','):
         print("Getting plugin %s" % file_name)
         file_download = full_json['download_url']
         file_response = requests.get(file_download, headers, stream=True)
-
-        with open(args.path + '/' + file_name, 'wb') as out_file:
+        cmd_file = args.path + '/' + file_name
+        with open(cmd_file, 'wb') as out_file:
             shutil.copyfileobj(file_response.raw, out_file)
+            st = os.stat(cmd_file)
+            os.chmod(cmd_file, st.st_mode | stat.S_IEXEC)
         print("Successfully installed %s to %s" % (file_name, args.path))
