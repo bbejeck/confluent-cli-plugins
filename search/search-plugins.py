@@ -37,7 +37,6 @@ def cli(cmd_args, print_output, fmt_json=True):
 parser = argparse.ArgumentParser(description='Lists the Confluent CLI Plugins available')
 
 parser.add_argument('--token', required=True, help='Your personal access token to use GitHub API')
-parser.add_argument('--user', required=True, help='Owner of the repo')
 parser.add_argument('--path', required=True, help='Path to save file to disk')
 
 args = parser.parse_args()
