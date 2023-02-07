@@ -53,7 +53,7 @@ plugin_indx = 1
 result_json = api_response.json()
 for repo_entry in result_json:
     entry_type = repo_entry['type']
-    if entry_type == 'dir':
+    if entry_type == 'dir' and repo_entry['name'] != 'search':
         plugins[plugin_indx] = repo_entry['name']
         plugin_indx += 1
         
