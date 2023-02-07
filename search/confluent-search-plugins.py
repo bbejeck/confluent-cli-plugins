@@ -78,5 +78,5 @@ for plugin_index in plugins_to_download.split(','):
         with open(cmd_file, 'wb') as out_file:
             shutil.copyfileobj(file_response.raw, out_file)
             st = os.stat(cmd_file)
-            os.chmod(cmd_file, st.st_mode | stat.S_IEXEC)
+            os.chmod(cmd_file, st.st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
         print("Successfully installed %s to %s" % (file_name, args.path))
