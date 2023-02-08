@@ -12,29 +12,9 @@
 #  limitations under the License.
 
 import argparse
-import subprocess
-import json
 import requests
-import shutil
 import os
 import stat
-
-
-def cli(cmd_args, print_output, fmt_json=True):
-    results = subprocess.run(cmd_args, capture_output=True)
-    if results.returncode != 0:
-        print(str(results.stderr, 'UTF-8'))
-        exit(results.returncode)
-    if fmt_json:
-        final_result = json.loads(results.stdout)
-    else:
-        final_result = str(results.stdout, 'UTF-8')
-
-    if print_output:
-        print("Debug: %s" % final_result)
-
-    return final_result
-
 
 parser = argparse.ArgumentParser(description='Lists the Confluent CLI Plugins available')
 
@@ -49,6 +29,9 @@ headers = {'Authorization': 'Bearer %s' % args.token,
            'X-GitHub-Api-Version': '2022-11-28'}
 
 api_response = requests.get(url, headers=headers)
+if api_response.status_code != 200:
+    print("There was an error connecting to GitHub - %s: %s" % (api_response.status_code, api_response.reason))
+    exit(1)
 
 plugins = {}
 plugin_indx = 1
@@ -58,12 +41,15 @@ for repo_entry in result_json:
     if entry_type == 'dir' and repo_entry['name'] != 'search':
         plugins[plugin_indx] = repo_entry['name']
         plugin_indx += 1
-        
+
 print("Available plugins to install:")
 for key in plugins:
     print("%s: %s" % (key, plugins[key]))
 
-plugins_to_download = input("Enter a single number or a comma separated list to install plugin(s): ")
+plugins_to_download = input("Enter a single number or a comma separated list to install plugin(s) or n to quit: ")
+if plugins_to_download == 'n':
+    print("Bye!!")
+    exit(0)
 
 for plugin_index in plugins_to_download.split(','):
     plugin_url = url + plugins[int(plugin_index)]
@@ -75,8 +61,8 @@ for plugin_index in plugins_to_download.split(','):
         file_download = full_json['download_url']
         file_response = requests.get(file_download, headers, stream=True)
         cmd_file = args.path + '/' + file_name
-        with open(cmd_file, 'wb') as out_file:
-            shutil.copyfileobj(file_response.raw, out_file)
+        with open(cmd_file, 'w', encoding='utf-8') as out_file:
+            out_file.writelines(file_response.text)
             st = os.stat(cmd_file)
             os.chmod(cmd_file, st.st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
         print("Successfully installed %s to %s" % (file_name, args.path))
