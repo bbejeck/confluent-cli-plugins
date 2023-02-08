@@ -36,7 +36,7 @@ confluent-this-command exists, the CLI runs this plugin and passes all arguments
 
 Here's a list of the current plugins you can install for the confluent CLI
 
-### [confluent dev bundle](dev-bundle/confluent-dev-bundle.py)
+### [confluent cloud-kickstart](cloud-kickstart/confluent-cloud_kickstart.py)
   - Creates a cluster with the preferred cloud provider and region
   - Generates API key and secret for cluster access 
   - Enables Schema Registry
@@ -51,10 +51,10 @@ Here's a list of the current plugins you can install for the confluent CLI
   - [Confluent CLI v3.0.0](https://docs.confluent.io/confluent-cli/current/install.html)
 #### Usage
 ```text
-usage: confluent dev bundle [-h] --name NAME [--env ENV] [--cloud {aws,azure,gcp}] [--region REGION] [--geo {apac,eu,us}]
-                                   [--client {clojure,cpp,csharp,go,groovy,java,kotlin,ktor,nodejs,python,restapi,ruby,rust,scala,springboot}] [--debug {y,n}]
+usage: confluent cloud-kickstart [-h] --name NAME [--env ENV] [--cloud {aws,azure,gcp}] [--region REGION] [--geo {apac,eu,us}]
+[--client {clojure,cpp,csharp,go,groovy,java,kotlin,ktor,nodejs,python,restapi,ruby,rust,scala,springboot}] [--debug {y,n}]
 
-Creates a Kafka cluster with API keys, Schema Registry with API keys and a client config template.This plugin assumes confluent CLI v3.0.0 or greater
+Creates a Kafka cluster with API keys, Schema Registry with API keys and a client config properties file. This plugin assumes confluent CLI v3.0.0 or greater
 
 options:
   -h, --help            show this help message and exit
@@ -67,9 +67,10 @@ options:
   --client {clojure,cpp,csharp,go,groovy,java,kotlin,ktor,nodejs,python,restapi,ruby,rust,scala,springboot}
                         Properties file used by client (default java)
   --debug {y,n}         Prints the results of every command, defaults to n
+  --dir DIR             Directory to save credentials and client configs, defaults to download directory
 ```
 
-### [confluent keys purge](purge-keys/confluent-keys-purge.py)
+### [confluent keys-purge](purge-keys/confluent-keys_purge.py)
  - Purges all API keys 
    - User prompted to confirm
 #### Requirements
@@ -77,7 +78,7 @@ options:
   - [Confluent CLI v3.0.0](https://docs.confluent.io/confluent-cli/current/install.html)
 #### Usage
 ```text
-usage: confluent keys purge [-h] [--resource RESOURCE] [--env ENV] [--sa SA]
+usage: confluent keys-purge [-h] [--resource RESOURCE] [--env ENV] [--sa SA]
 
 Deletes API keys for the current user, specified environment, or service account This plugin assumes confluent CLI v3.0.0 or greater
 

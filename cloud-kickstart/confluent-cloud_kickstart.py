@@ -15,6 +15,9 @@
 import argparse
 import subprocess
 import json
+from pathlib import Path
+from datetime import datetime
+import os
 
 
 def cli(cmd_args, print_output, fmt_json=True):
@@ -33,7 +36,16 @@ def cli(cmd_args, print_output, fmt_json=True):
     return final_result
 
 
-usage_message = '''confluent dev bundle [-h] --name NAME [--env ENV] [--cloud {aws,azure,gcp}] [--region REGION] [--geo {apac,eu,us}]
+def write_to_file(file_name, text, json_fmt=True):
+    print("Writing %s to %s" % (file_name, save_dir))
+    with open(file_name, 'w', encoding='utf-8') as out_file:
+        if json_fmt:
+            json.dump(text, out_file, indent=2, sort_keys=True)
+        else:
+            out_file.writelines(text)
+
+
+usage_message = '''confluent cloud-kickstart [-h] --name NAME [--env ENV] [--cloud {aws,azure,gcp}] [--region REGION] [--geo {apac,eu,us}]
 [--client {clojure,cpp,csharp,go,groovy,java,kotlin,ktor,nodejs,python,restapi,ruby,rust,scala,springboot}] [--debug {y,n}]
 '''
 
@@ -57,8 +69,12 @@ parser.add_argument('--client', choices=['clojure', 'cpp', 'csharp', 'go', 'groo
                     default='java', help='Properties file used by client (default java)')
 parser.add_argument("--debug", choices=['y', 'n'], default='n',
                     help="Prints the results of every command, defaults to n")
+parser.add_argument("--dir", help='Directory to save credentials and client configs, defaults to download directory')
 
 args = parser.parse_args()
+save_dir = args.dir
+if save_dir is None:
+    save_dir = str(os.path.join(Path.home(), "Downloads"))
 
 debug = False if args.debug == 'n' else True
 
@@ -85,8 +101,12 @@ client_config = cli(["confluent", "kafka", "client-config", "create", args.clien
                      "--schema-registry-api-secret", sr_creds_json['api_secret']],
                     debug, fmt_json=False)
 
-print("\nStart %s client configs ##################################################################################\n" %
-      args.client)
-print(client_config)
-print("End %s client configs ####################################################################################" %
-      args.client)
+cluster_keys_file = save_dir + '/' + "cluster-api-keys-" + cluster_json['id'] + ".json"
+write_to_file(cluster_keys_file, creds_json)
+
+ts = date_string = f'{datetime.now():%Y-%m-%d_%H-%M-%S%z}'
+sr_keys_file = save_dir + '/' + "sr-api-keys-" + ts + '_' + sr_json['id'] + ".json"
+write_to_file(sr_keys_file, sr_creds_json)
+
+client_configs_file = save_dir + '/' + args.client + '_configs_' + cluster_json['id'] + ".properties"
+write_to_file(client_configs_file, client_config, json_fmt=False)
