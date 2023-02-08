@@ -40,8 +40,7 @@ Here's a list of the current plugins you can install for the confluent CLI
   - Creates a cluster with the preferred cloud provider and region
   - Generates API key and secret for cluster access 
   - Enables Schema Registry
-  - Generates API key and secret for Schema Registry access 
-  - Prints a client configuration to STDOUT (user specified - defaults to Java)
+  - Generates API key and secret for Schema Registry access
   - Writes API key and secret for cluster and SR to files, writes client config to file
   - TODO
     - Support creating environment and service account
