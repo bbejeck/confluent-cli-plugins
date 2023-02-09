@@ -17,7 +17,7 @@ import subprocess
 import json
 
 
-def cli(cmd_args, print_output, fmt_json=True):
+def cli(cmd_args, print_output=False, fmt_json=True):
     results = subprocess.run(cmd_args, capture_output=True)
     if results.returncode != 0:
         print(str(results.stderr, 'UTF-8'))
@@ -33,44 +33,74 @@ def cli(cmd_args, print_output, fmt_json=True):
     return final_result
 
 
-parser = argparse.ArgumentParser(description='Deletes API keys for the current user, '
-                                             'specified environment, or service account '
-                                             'This plugin assumes confluent CLI v3.0.0 or greater')
+usage_message = 'confluent schema-purge [-h] [--subject-prefix SUBJECT_PREFIX] [--api-key API_KEY] [--api-secret API_SECRET] [--context CONTEXT] [--env ENV] [--secrets-file SECRETS_FILE]'
 
-parser.add_argument('--resource', help='The resource id to filter results by')
-parser.add_argument('--env', help='The environment id to purge keys from')
-parser.add_argument('--sa', help='The service account id to purge keys from')
+parser = argparse.ArgumentParser(description='Deletes schemas'
+                                             'This plugin assumes confluent CLI v3.0.0 or greater',
+                                 usage=usage_message)
+
+parser.add_argument('--subject-prefix', help='List schemas for subjects matching the prefix')
+parser.add_argument('--api-key', help='The API key')
+parser.add_argument('--api-secret', help='The API secret')
+parser.add_argument('--context', help='The CLI context name')
+parser.add_argument('--env', help='The environment id')
+parser.add_argument('--secrets-file', help='Path to a JSON file with the API key and secret, '
+                                           'the --api-key and --api-secret flags take priority')
 
 args = parser.parse_args()
 
-cmd = ['confluent', 'api-key', 'list', '-o', 'json']
-
-if args.env is not None and args.sa is not None:
-    print("You can only specify one of environment id or service-account")
+list_schema_cmd = ['confluent', 'schema-registry', 'schema', 'list', '--output', 'json']
+delete_schema_cmd = ['confluent', 'schema-registry', 'schema', 'delete', '--force', '--permanent', '--version', 'all',
+                     '--subject']
+if args.api_key is None and args.api_secret is None and args.secrets_file is None:
+    print("You must specify --api-key and --api-secret or --secrets-file")
     exit(1)
 
-if args.resource is not None:
-    cmd.append('--resource')
-    cmd.append(args.resource)
+if args.context is not None:
+    list_schema_cmd.append('--context')
+    list_schema_cmd.append(args.context)
+    delete_schema_cmd.append('--context')
+    delete_schema_cmd.append(args.context)
 if args.env is not None:
-    cmd.append('--environment')
-    cmd.append(args.env)
-if args.sa is not None:
-    cmd.append('--service-account')
-    cmd.append(args.sa)
-if args.env is None and args.sa is None:
-    cmd.append('--current-user')
-
-api_keys_json = cli(cmd, False)
-num_api_keys = len(api_keys_json)
-if num_api_keys > 0:
-    do_purge = input("Found %s API keys are you sure you want to purge them (y/n): " % num_api_keys)
-    if do_purge == 'y':
-        for api_key_obj in api_keys_json:
-            del_cmd = ['confluent', 'api-key', 'delete', api_key_obj['key'], '--force']
-            result = cli(del_cmd, False, fmt_json=False)
-            print(result)
-    else:
-        print("Not purging keys, so quitting now")
+    list_schema_cmd.append('--environment')
+    list_schema_cmd.append(args.env)
+    delete_schema_cmd.append('--environment')
+    delete_schema_cmd.append(args.env)
+if args.subject_prefix is not None:
+    list_schema_cmd.append('--subject-prefix')
+    list_schema_cmd.append(args.sa)
+if args.api_key is None and args.api_secret is None:
+    with open(args.secrets_file) as json_file:
+        creds_json = json.load(json_file)
+        api_key = creds_json['api_key']
+        api_secret = creds_json['api_secret']
 else:
-    print("No API keys found")
+    api_key = args.api_key
+    api_secret = args.api_secret
+
+list_schema_cmd.append('--api-key')
+list_schema_cmd.append(api_key)
+list_schema_cmd.append('--api-secret')
+list_schema_cmd.append(api_secret)
+
+delete_schema_cmd.append('--api-key')
+delete_schema_cmd.append(api_key)
+delete_schema_cmd.append('--api-secret')
+delete_schema_cmd.append(api_secret)
+
+schema_list_json = cli(list_schema_cmd)
+
+schema_ids = []
+for json_schema in schema_list_json:
+    print("Found schema %s at version %s" % (json_schema['subject'], json_schema['version']))
+    schema_ids.append(json_schema['subject'])
+
+do_delete = input("Are you sure you want to delete all schemas? y|n  ")
+if do_delete != 'y':
+    print('Quitting and leaving all schemas in-place')
+    exit(0)
+else:
+    for schema_id in schema_ids:
+        delete_schema_cmd.append(schema_id)
+        print(cli(delete_schema_cmd, fmt_json=False))
+        delete_schema_cmd.pop()
