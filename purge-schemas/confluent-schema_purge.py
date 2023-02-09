@@ -50,8 +50,7 @@ parser.add_argument('--secrets-file', help='Path to a JSON file with the API key
 args = parser.parse_args()
 
 list_schema_cmd = ['confluent', 'schema-registry', 'schema', 'list', '--output', 'json']
-delete_schema_cmd = ['confluent', 'schema-registry', 'schema', 'delete', '--force', '--permanent', '--version', 'all',
-                     '--subject']
+delete_schema_cmd = ['confluent', 'schema-registry', 'schema', 'delete', '--force', '--permanent', '--version', 'all']
 if args.api_key is None and args.api_secret is None and args.secrets_file is None:
     print("You must specify --api-key and --api-secret or --secrets-file")
     exit(1)
@@ -87,6 +86,7 @@ delete_schema_cmd.append('--api-key')
 delete_schema_cmd.append(api_key)
 delete_schema_cmd.append('--api-secret')
 delete_schema_cmd.append(api_secret)
+delete_schema_cmd.append('--subject')
 
 schema_list_json = cli(list_schema_cmd)
 
