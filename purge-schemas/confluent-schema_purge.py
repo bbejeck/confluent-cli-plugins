@@ -35,7 +35,7 @@ def cli(cmd_args, print_output=False, fmt_json=True):
 
 usage_message = 'confluent schema-purge [-h] [--subject-prefix SUBJECT_PREFIX] [--api-key API_KEY] [--api-secret API_SECRET] [--context CONTEXT] [--env ENV] [--secrets-file SECRETS_FILE]'
 
-parser = argparse.ArgumentParser(description='Deletes schemas'
+parser = argparse.ArgumentParser(description='Deletes all schemas permanently'
                                              'This plugin assumes confluent CLI v3.0.0 or greater',
                                  usage=usage_message)
 
