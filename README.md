@@ -34,6 +34,12 @@ confluent-this-command exists, the CLI runs this plugin and passes all arguments
 
 ## Plugins
 
+### Using the installation command
+ 
+There's a search and install plugin [confluent plugin-search](search/confluent-plugin_search.py) that you can use for listing and installing
+the plugins available in this repo. Just place the file in your path then you can use the `confluent plugin-search` command. Note that you'll need to create 
+a [GitHub personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) for the command to work.
+
 Here's a list of the current plugins you can install for the confluent CLI
 
 ### [confluent cloud-kickstart](cloud-kickstart/confluent-cloud_kickstart.py)
