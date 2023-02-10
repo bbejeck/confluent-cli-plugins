@@ -90,6 +90,7 @@ options:
 
 ### [confluent schema-purge](purge-schemas/confluent-schema_purge.py)
  - Deletes all schemas (all versions) - only a soft delete for now
+ - NOTE: This command will fail if you have schemas references - - you still need to delete those manually first
 #### Requirements
 - Python 3 (3.10.9 used for this plugin)  `brew install python3`
 - [Confluent CLI v3.0.0](https://docs.confluent.io/confluent-cli/current/install.html)
