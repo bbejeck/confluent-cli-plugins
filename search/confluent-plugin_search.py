@@ -14,17 +14,30 @@
 import argparse
 import requests
 import os
+from pathlib import Path
 import stat
 
 parser = argparse.ArgumentParser(description='Lists the Confluent CLI Plugins available')
 
-parser.add_argument('--token', required=True, help='Your personal access token to use GitHub API')
+parser.add_argument('--token', help='Your personal access token to use GitHub API')
+parser.add_argument('--token-path', default=str(os.path.join(Path.home(), '.github-token.conf')),
+                    help='Name and location of your GitHub access token')
 parser.add_argument('--path', default='/usr/local/bin', help='Path to save commands')
 
 args = parser.parse_args()
+access_token = None
+if args.token is not None:
+    access_token = args.token
+else:
+    with open(args.token_path) as token_file:
+        access_token = token_file.readline().strip()
+
+if access_token is None:
+    print("You have to provide GitHub access token either directly via --token arg or path to token file with --token-path")
+    exit(1)
 
 url = 'https://api.github.com/repos/bbejeck/confluent-cli-plugins/contents/'
-headers = {'Authorization': 'Bearer %s' % args.token,
+headers = {'Authorization': 'Bearer %s' % access_token,
            'Accept': 'application/vnd.github+json',
            'X-GitHub-Api-Version': '2022-11-28'}
 
