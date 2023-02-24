@@ -92,6 +92,9 @@ sr_json = cli(["confluent", "schema-registry", "cluster", "enable", "--cloud",
 print("Generating API keys for Schema Registry")
 sr_creds_json = cli(["confluent", "api-key", "create", "--resource", sr_json['id'], "-o", "json"], debug)
 
+print("Enabling the API key for Cluster")
+cli(["confluent", "api-key", "use", creds_json['api_key'], "--resource", cluster_json['id']], debug, fmt_json=False)
+
 print("Generating client config")
 client_config = cli(["confluent", "kafka", "client-config", "create", args.client,
                      "--cluster", cluster_json['id'],

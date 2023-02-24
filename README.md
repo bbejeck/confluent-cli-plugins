@@ -46,11 +46,11 @@ Here's a list of the current plugins you can install for the confluent CLI
   - Creates a cluster with the preferred cloud provider and region
   - Generates API key and secret for cluster access 
   - Enables Schema Registry
+  - Sets the new API key as the active one for the cluster
   - Generates API key and secret for Schema Registry access
   - Writes API key and secret for cluster and SR to files, writes client config to file
   - TODO
     - Support creating environment and service account
-    - Specify to use current cluster and API keys for current CLI session
 #### Requirements
   - Python 3 (3.10.9 used for this plugin)  `brew install python3`
   - [Confluent CLI v3.0.0](https://docs.confluent.io/confluent-cli/current/install.html)
