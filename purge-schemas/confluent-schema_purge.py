@@ -15,6 +15,7 @@
 import argparse
 import subprocess
 import json
+import itertools
 
 
 def cli(cmd_args, print_output=False, fmt_json=True):
@@ -51,6 +52,7 @@ args = parser.parse_args()
 
 list_schema_cmd = ['confluent', 'schema-registry', 'schema', 'list', '--output', 'json']
 delete_schema_cmd = ['confluent', 'schema-registry', 'schema', 'delete', '--force', '--version', 'all']
+describe_with_refs_cmd = ['confluent', 'schema-registry', 'schema', 'describe', '--show-references']
 if args.api_key is None and args.api_secret is None and args.secrets_file is None:
     print("You must specify --api-key and --api-secret or --secrets-file")
     exit(1)
@@ -90,17 +92,29 @@ delete_schema_cmd.append('--subject')
 
 schema_list_json = cli(list_schema_cmd)
 
+schema_subjects = []
 schema_ids = []
 for json_schema in schema_list_json:
     print("Found schema %s at version %s" % (json_schema['subject'], json_schema['version']))
-    schema_ids.append(json_schema['subject'])
+    schema_subjects.append(json_schema['subject'])
+    schema_ids.append(json_schema['schema_id'])
 
 do_delete = input("Are you sure you want to delete all schemas? y|n  ")
 if do_delete != 'y':
     print('Quitting and leaving all schemas in-place')
     exit(0)
 else:
-    for schema_id in schema_ids:
-        delete_schema_cmd.append(schema_id)
+    for (subject, schema_id) in zip(schema_subjects, schema_ids):
+        describe_with_refs_cmd.append(str(schema_id))
+        schema_w_refs = cli(describe_with_refs_cmd)
+        if 'references' in schema_w_refs['schemas'][0]:
+            references = schema_w_refs['schemas'][0]['references']
+            for ref in references:
+                print(f"Found reference {ref} need to delete this first")
+                delete_schema_cmd.append(ref['subject'])
+                print(cli(delete_schema_cmd, fmt_json=False))
+                delete_schema_cmd.pop()
+        delete_schema_cmd.append(subject)
         print(cli(delete_schema_cmd, fmt_json=False))
         delete_schema_cmd.pop()
+        describe_with_refs_cmd.pop()
