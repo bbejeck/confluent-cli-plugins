@@ -15,7 +15,6 @@
 import argparse
 import subprocess
 import json
-import itertools
 
 
 def cli(cmd_args, print_output=False, fmt_json=True):
@@ -94,6 +93,26 @@ schema_list_json = cli(list_schema_cmd)
 
 schema_subjects = []
 schema_ids = []
+
+
+def get_schemas_with_references(subjects, ids):
+    delete_first = []
+    print("Looking for schemas with references first")
+    for (subject, schema_id) in zip(subjects, ids):
+        describe_with_refs_cmd.append(str(schema_id))
+        schema_w_refs = cli(describe_with_refs_cmd)
+        if 'references' in schema_w_refs['schemas'][0]:
+            delete_first.append(subject)
+        describe_with_refs_cmd.pop()
+    return delete_first
+
+
+def do_delete_schema(subject):
+    delete_schema_cmd.append(subject)
+    print(cli(delete_schema_cmd, fmt_json=False))
+    delete_schema_cmd.pop()
+
+
 for json_schema in schema_list_json:
     print("Found schema %s at version %s" % (json_schema['subject'], json_schema['version']))
     schema_subjects.append(json_schema['subject'])
@@ -104,17 +123,19 @@ if do_delete != 'y':
     print('Quitting and leaving all schemas in-place')
     exit(0)
 else:
-    for (subject, schema_id) in zip(schema_subjects, schema_ids):
-        describe_with_refs_cmd.append(str(schema_id))
-        schema_w_refs = cli(describe_with_refs_cmd)
-        if 'references' in schema_w_refs['schemas'][0]:
-            references = schema_w_refs['schemas'][0]['references']
-            for ref in references:
-                print(f"Found reference {ref} need to delete this first")
-                delete_schema_cmd.append(ref['subject'])
-                print(cli(delete_schema_cmd, fmt_json=False))
-                delete_schema_cmd.pop()
-        delete_schema_cmd.append(subject)
-        print(cli(delete_schema_cmd, fmt_json=False))
-        delete_schema_cmd.pop()
-        describe_with_refs_cmd.pop()
+    schemas_with_refs_to_delete_first = get_schemas_with_references(schema_subjects, schema_ids)
+    print(f'Soft deleting schemas with refs first {schemas_with_refs_to_delete_first}')
+    for schema_subject in schemas_with_refs_to_delete_first:
+        print(f'Attempting to delete {schema_subject}')
+        do_delete_schema(schema_subject)
+    print(f'Now soft deleting the rest of schemas {schema_subjects}')
+    for schema_subject in schema_subjects:
+        if schema_subject not in schemas_with_refs_to_delete_first:
+            print(f'Attempting to delete {schema_subject}')
+            do_delete_schema(schema_subject)
+
+    delete_schema_cmd.insert(4, '--permanent')
+    print('Now doing a hard delete on all schemas')
+    for schema_subject in schema_subjects:
+        print(f'Hard delete for {schema_subject}')
+        do_delete_schema(schema_subject)
