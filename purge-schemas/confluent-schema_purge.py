@@ -93,6 +93,7 @@ schema_list_json = cli(list_schema_cmd)
 
 schema_subjects = []
 schema_ids = []
+subjects_versions = {}
 
 
 def get_schemas_with_references(subjects, ids):
@@ -107,8 +108,12 @@ def get_schemas_with_references(subjects, ids):
     return delete_first
 
 
-def do_delete_schema(subject):
+def do_delete_schema(subject, schema_version=None):
     delete_schema_cmd.append(subject)
+    if schema_version is not None:
+        version_index = delete_schema_cmd.index('--version')
+        delete_schema_cmd[version_index + 1] = str(schema_version)
+
     print(cli(delete_schema_cmd, fmt_json=False))
     delete_schema_cmd.pop()
 
@@ -117,6 +122,7 @@ for json_schema in schema_list_json:
     print("Found schema %s at version %s" % (json_schema['subject'], json_schema['version']))
     schema_subjects.append(json_schema['subject'])
     schema_ids.append(json_schema['schema_id'])
+    subjects_versions[json_schema['subject']] = json_schema['version']
 
 do_delete = input("Are you sure you want to delete all schemas? y|n  ")
 if do_delete != 'y':
@@ -138,4 +144,4 @@ else:
     print('Now doing a hard delete on all schemas')
     for schema_subject in schema_subjects:
         print(f'Hard delete for {schema_subject}')
-        do_delete_schema(schema_subject)
+        do_delete_schema(schema_subject, subjects_versions[schema_subject])
